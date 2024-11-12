@@ -90,51 +90,45 @@
             // Agrega más ciudades según se requiera
         };
 
-        // Función para obtener y procesar datos de Google Sheets
-        async function fetchData() {
+        // Función para cargar y contar las ciudades desde Google Sheets
+        async function fetchAndMapData() {
             try {
                 const response = await fetch(sheetUrl);
                 const text = await response.text();
-                const json = JSON.parse(text.substr(47).slice(0, -2));
+                const json = JSON.parse(text.substr(47).slice(0, -2)); // Eliminar el encabezado de Google Sheets
 
+                // Contar ocurrencias de cada ciudad
                 const cityCounts = {};
-
                 json.table.rows.forEach(row => {
-                    const city = row.c[5]?.v; // Columna F con índice 5 en JavaScript (empezando desde 0)
+                    const city = row.c[0] ? row.c[0].v : null;
                     if (city) {
                         cityCounts[city] = (cityCounts[city] || 0) + 1;
                     }
                 });
 
-                return cityCounts;
-            } catch (error) {
-                console.error("Error al obtener los datos:", error);
-            }
-        }
-
-        // Función para mostrar marcadores en el mapa
-        async function showMarkers() {
-            const cityCounts = await fetchData();
-
-            for (const [city, count] of Object.entries(cityCounts)) {
-                const coords = cityCoordinates[city];
-                if (coords) {
-                    L.circleMarker(coords, {
-                        color: '#FF5733',
-                        radius: Math.sqrt(count) * 3, // Ajuste de tamaño según conteo
-                        fillOpacity: 0.7
-                    })
-                    .bindPopup(`<strong>${city}</strong><br>Denuncias: ${count}`)
-                    .addTo(map);
-                } else {
-                    console.warn(`Coordenadas no encontradas para ${city}`);
+                // Añadir marcadores en el mapa para cada ciudad con denuncias
+                for (const [city, count] of Object.entries(cityCounts)) {
+                    const coords = cityCoordinates[city];
+                    if (coords) {
+                        L.circleMarker(coords, {
+                            color: '#6A1B9A',
+                            radius: Math.sqrt(count) * 3, // Ajustar el tamaño del marcador según el conteo
+                            fillOpacity: 0.6
+                        })
+                        .bindPopup(`<strong>${city}</strong><br>Denuncias: ${count}`)
+                        .addTo(map);
+                    } else {
+                        console.warn(`Coordenadas no encontradas para ${city}`);
+                    }
                 }
+            } catch (error) {
+                console.error('Error al cargar los datos de Google Sheets:', error);
             }
         }
 
-        // Ejecutar la función para mostrar los marcadores
-        showMarkers();
+        // Ejecutar la función para cargar datos y mapear
+        fetchAndMapData();
     </script>
 </body>
 </html>
-
+    
