@@ -6,8 +6,6 @@
     <title>Estadísticas de Denuncias - Datos Invisibles</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
     <style>
         body {
             font-family: 'Poppins', sans-serif;
@@ -15,7 +13,8 @@
             display: flex;
             background-color: #f9f9f9;
         }
-        
+
+        /* Sidebar */
         .sidebar {
             width: 250px;
             background-color: white;
@@ -31,13 +30,13 @@
             background-repeat: no-repeat;
             opacity: 0.7;
         }
-        
+
         .sidebar img {
             width: 80%;
             max-width: 200px;
             margin-bottom: 20px;
         }
-        
+
         .sidebar a {
             display: block;
             color: #6A1B9A;
@@ -45,39 +44,38 @@
             text-decoration: none;
             border-bottom: 1px solid #4A0A7A;
         }
-        
+
         .sidebar a:hover {
             background-color: #A475C7;
         }
-        
+
+        /* Main content area */
         .content {
             margin-left: 250px;
             padding: 20px;
             width: 100%;
             color: black;
         }
-        
+
+        /* Title style */
         h1 {
             text-align: center;
             color: #4A0A7A;
             font-size: 35px;
             margin-bottom: 10px;
         }
-        
+
+        /* Chart container */
+        #chart-container {
+            width: 60%;
+            margin: auto;
+        }
+
+        /* Horizontal line */
         hr {
             border: none;
             border-top: 2px dashed #4A0A7A;
             margin: 10px 0;
-        }
-        
-        .content p {
-            text-align: justify;
-        }
-        
-        /* Canvas size for the chart */
-        #pieChart {
-            max-width: 600px;
-            margin: auto;
         }
     </style>
 </head>
@@ -93,52 +91,59 @@
         <a href="contacto.html">Contacto</a>
     </div>
 
-    <!-- Main Content Area with Pie Chart -->
+    <!-- Main Content Area with Chart -->
     <div class="content">
-        <h1>Estadísticas de Denuncias</h1>
-        <p>Gráfico circular mostrando el porcentaje de cada tipo de denuncia en la columna "Descripción".</p>
-        <canvas id="pieChart"></canvas>
+        <h1>Estadística de Denuncias - Descripción</h1>
+        <div id="chart-container">
+            <canvas id="pieChart"></canvas>
+        </div>
     </div>
 
+    <!-- Chart.js Library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <script>
-        // URL de la Google Sheets publicada
-        const sheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQfgPfi0vZuG4aWNlD-41C-419b5lhNNvMwk8KpE4BxyIQdLXn9838SxRSaRmkYEmf6M3Zh7LE5frpv/pub?output=csv';
+        // ID de la hoja de Google Sheets
+        const sheetId = '2PACX-1vQfgPfi0vZuG4aWNlD-41C-419b5lhNNvMwk8KpE4BxyIQdLXn9838SxRSaRmkYEmf6M3Zh7LE5frpv';
+        const sheetUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json`;
 
-        // Función para cargar y contar tipos de descripción desde Google Sheets
+        // Función para obtener y contar los datos de la columna "Descripción"
         async function fetchData() {
-            const response = await fetch(sheetUrl);
-            const data = await response.text();
-            
-            const rows = data.split('\n').slice(1);  // Saltar la primera fila de encabezado
-            const descriptionCounts = {};
-
-            rows.forEach(row => {
-                const columns = row.split(',');
-                const description = columns[5];  // Columna F (índice 5)
+            try {
+                const response = await fetch(sheetUrl);
+                const text = await response.text();
+                const json = JSON.parse(text.substr(47).slice(0, -2));
                 
-                if (description) {
-                    descriptionCounts[description] = (descriptionCounts[description] || 0) + 1;
-                }
-            });
+                // Obtener los datos de la columna "Descripción" (columna específica)
+                const data = json.table.rows.map(row => row.c[5]?.v); // columna E (c[5]) es Descripción
+                const counts = data.reduce((acc, description) => {
+                    if (description) {
+                        acc[description] = (acc[description] || 0) + 1;
+                    }
+                    return acc;
+                }, {});
 
-            return descriptionCounts;
+                return counts;
+            } catch (error) {
+                console.error("Error al obtener los datos de Google Sheets:", error);
+                return {};
+            }
         }
 
-        // Función para crear gráfico circular con los datos
-        async function createPieChart() {
-            const descriptionCounts = await fetchData();
-            const labels = Object.keys(descriptionCounts);
-            const data = Object.values(descriptionCounts);
+        // Función para generar el gráfico circular
+        async function generateChart() {
+            const counts = await fetchData();
+            const labels = Object.keys(counts);
+            const values = Object.values(counts);
 
-            // Configuración del gráfico
             const ctx = document.getElementById('pieChart').getContext('2d');
             new Chart(ctx, {
                 type: 'pie',
                 data: {
                     labels: labels,
                     datasets: [{
-                        label: 'Tipos de Denuncia',
-                        data: data,
+                        label: 'Porcentaje de Denuncias',
+                        data: values,
                         backgroundColor: [
                             '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'
                         ],
@@ -149,16 +154,24 @@
                     responsive: true,
                     plugins: {
                         legend: {
-                            position: 'bottom',
+                            position: 'top',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(tooltipItem) {
+                                    const total = values.reduce((a, b) => a + b, 0);
+                                    const percentage = ((tooltipItem.raw / total) * 100).toFixed(2);
+                                    return `${tooltipItem.label}: ${percentage}%`;
+                                }
+                            }
                         }
                     }
                 }
             });
         }
 
-        // Crear el gráfico cuando se carga la página
-        createPieChart();
+        // Llamar a la función para generar el gráfico
+        generateChart();
     </script>
-
 </body>
 </html>
