@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa de Denuncias en Colombia</title>
+
+    <!-- Incluir los estilos de Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+
+    <!-- Estilos personalizados -->
+    <style>
+        #map {
+            height: 600px;
+            width: 100%;
+        }
+        .sidebar {
+            width: 250px;
+            position: fixed;
+            background-color: #6A1B9A;
+            color: white;
+            height: 100%;
+            padding: 10px;
+        }
+        .content {
+            margin-left: 250px;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <h2>Datos Invisibles</h2>
+        <a href="index.html" style="color: white;">Inicio</a>
+        <a href="mapa.html" style="color: white;">Mapa</a>
+    </div>
+
+    <div class="content">
+        <h1>Mapa de Denuncias en Colombia</h1>
+        <div id="map"></div>
+    </div>
+
+    <!-- Incluir el script de Leaflet -->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+
+    <!-- Script para cargar datos de Google Sheets y mostrarlos en el mapa -->
+    <script>
+        // Inicializar el mapa centrado en Colombia
+        const map = L.map('map').setView([4.5709, -74.2973], 6); // Coordenadas de Colombia
+
+        // Añadir una capa de mapa de OpenStreetMap
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 18,
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+
+        // ID de tu Google Sheet
+        const sheetId = 'ID_DE_TU_DOCUMENTO';
+        const sheetUrl = `https://docs.google.com/spreadsheets/d/1Kz6pfz1FM_lWwaW0M3tPe-QF0SnuJJRnxUP8briyWWg/gviz/tq?tqx=out:json`;
+
+        // Función para cargar datos de Google Sheets
+        async function fetchData() {
+            try {
+                const response = await fetch(sheetUrl);
+                const text = await response.text();
+                const json = JSON.parse(text.substr(47).slice(0, -2)); // Formato de Google Sheets
+                return json.table.rows.map(row => ({
+                    ciudad: row.c[0].v,
+                    conteo: parseInt(row.c[1].v)
+                }));
+            } catch (error) {
+                console.error('Error al obtener los datos de Google Sheets:', error);
+            }
+        }
+
+        // Diccionario de coordenadas para las principales ciudades de Colombia
+        const cityCoordinates = {
+            "Bogotá": [4.7110, -74.0721],
+            "Medellín": [6.2442, -75.5812],
+            "Cali": [3.4516, -76.531985],
+            "Barranquilla": [10.9685, -74.7813],
+            "Cartagena": [10.3910, -75.4794],
+            // Agrega más ciudades según sea necesario
+        };
+
+        // Añadir marcadores al mapa según los datos obtenidos
+        async function addMarkers() {
+            const data = await fetchData();
+
+            data.forEach(({ ciudad, conteo }) => {
+                const coords = cityCoordinates[ciudad];
+                if (coords) {
+                    L.circleMarker(coords, {
+                        color: '#6A1B9A',
+                        radius: Math.sqrt(conteo) * 2, // Ajustar el tamaño según el conteo
+                        fillOpacity: 0.7
+                    })
+                    .bindPopup(`<strong>${ciudad}</strong><br>Denuncias: ${conteo}`)
+                    .addTo(map);
+                } else {
+                    console.warn(`Coordenadas no encontradas para ${ciudad}`);
+                }
+            });
+        }
+
+        // Llamar a la función para añadir los marcadores
+        addMarkers();
+    </script>
+</body>
+</html>
