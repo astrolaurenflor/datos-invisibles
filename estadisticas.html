@@ -96,39 +96,46 @@
                 const response = await fetch(sheetUrl);
                 const text = await response.text();
                 const json = JSON.parse(text.substr(47).slice(0, -2)); // Eliminar el encabezado de Google Sheets
-
+                const data = json.table.rows.map(row => row.c[5]?.v); // columna F (ciudades)
                 // Contar ocurrencias de cada ciudad
-                const cityCounts = {};
-                json.table.rows.forEach(row => {
-                    const city = row.c[0] ? row.c[0].v : null;
+                const cityCounts = data.reduce((counts, city) => {
                     if (city) {
-                        cityCounts[city] = (cityCounts[city] || 0) + 1;
+                        counts[city] = (counts[city] || 0) + 1;
                     }
-                });
+                    return counts;
+                }, {});
 
-                // Añadir marcadores en el mapa para cada ciudad con denuncias
-                for (const [city, count] of Object.entries(cityCounts)) {
-                    const coords = cityCoordinates[city];
-                    if (coords) {
-                        L.circleMarker(coords, {
-                            color: '#6A1B9A',
-                            radius: Math.sqrt(count) * 3, // Ajustar el tamaño del marcador según el conteo
-                            fillOpacity: 0.6
-                        })
-                        .bindPopup(`<strong>${city}</strong><br>Denuncias: ${count}`)
-                        .addTo(map);
-                    } else {
-                        console.warn(`Coordenadas no encontradas para ${city}`);
-                    }
-                }
+                return cityCounts;
             } catch (error) {
-                console.error('Error al cargar los datos de Google Sheets:', error);
+                console.error("Error al obtener los datos de Google Sheets:", error);
+                return {};
             }
         }
 
-        // Ejecutar la función para cargar datos y mapear
-        fetchAndMapData();
+        // Añadir marcadores al mapa según los datos
+        async function addCityMarkers() {
+            const cityCounts = await fetchCityData();
+
+            Object.keys(cityCounts).forEach(city => {
+                const coords = cityCoordinates[city];
+                if (coords) {
+                    L.circleMarker(coords, {
+                        color: '#3388ff',
+                        radius: Math.sqrt(cityCounts[city]) * 2, // Ajustar tamaño según conteo
+                        fillOpacity: 0.5
+                    })
+                    .bindPopup(`<strong>${city}</strong><br>Denuncias: ${cityCounts[city]}`)
+                    .addTo(map);
+                } else {
+                    console.warn(`Coordenadas no encontradas para ${city}`);
+                }
+            });
+        }
+
+        // Llamar a la función para añadir los marcadores
+        addCityMarkers();
     </script>
+                
 </body>
 </html>
     
