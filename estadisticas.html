@@ -96,7 +96,7 @@
                 const response = await fetch(sheetUrl);
                 const text = await response.text();
                 const json = JSON.parse(text.substr(47).slice(0, -2)); // Eliminar el encabezado de Google Sheets
-                const data = json.table.rows.map(row => row.c[5]?.v); // columna F (ciudades)
+                const data = json.table.rows.map(row => row.c[6]?.v); // columna F (ciudades)
                 // Contar ocurrencias de cada ciudad
                 const cityCounts = data.reduce((counts, city) => {
                     if (city) {
