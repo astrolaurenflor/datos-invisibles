@@ -3,61 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Datos Invisibles, Ciencia Real</title>
+    <title>Datos Invisibles - Ciencia Real</title>
     <style>
+        /* General layout */
         body {
             font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
             margin: 0;
-            padding: 0;
+            display: flex;
         }
-        header {
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
             background-color: #6A1B9A;
             color: white;
-            text-align: center;
-            padding: 20px;
-        }
-        h1 {
-            margin: 0;
-        }
-        section {
-            padding: 20px;
-        }
-        footer {
-            background-color: #333;
-            color: white;
-            text-align: center;
-            padding: 10px;
             position: fixed;
+            height: 100%;
+            padding-top: 20px;
+        }
+
+        .sidebar a {
+            display: block;
+            color: white;
+            padding: 15px;
+            text-decoration: none;
+        }
+
+        .sidebar a:hover {
+            background-color: #4A0A7A;
+        }
+
+        /* Main content area */
+        .content {
+            margin-left: 250px;
+            padding: 20px;
             width: 100%;
-            bottom: 0;
         }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>Datos Invisibles, Ciencia Real</h1>
-        <p>Visibilizando lo oculto en la ciencia</p>
-    </header>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h2>Datos Invisibles</h2>
+        <a href="index.html">Inicio</a>
+        <a href="denuncias.html">Denuncias</a>
+        <a href="estadisticas.html">Estadísticas</a>
+        <a href="contacto.html">Contacto</a>
+    </div>
 
-    <section>
-        <h2>Bienvenida a Datos Invisibles</h2>
-        <p>Este proyecto busca dar visibilidad a las problemáticas que enfrentan las mujeres en las instituciones científicas de Colombia. Aquí podrás encontrar información relevante, datos de casos y la oportunidad de hacer denuncias anónimas sobre acosos, abusos y comportamientos inapropiados en la ciencia.</p>
-    </section>
-
-    
- <section>
-        <h2>Denuncia Anónima</h2>
-        <p>Usa el siguiente formulario para denunciar de forma anónima cualquier caso de acoso, abuso o comportamiento inapropiado en instituciones científicas de Colombia.</p>
-
-        <!-- Inserta aquí el código del formulario de Google Forms -->
-        <iframe src="https://forms.gle/qeCggFUfxK8nQkU66" width="640" height="800" frameborder="0" marginheight="0" marginwidth="0">Cargando…</iframe>
-    </section>
-    
-    <footer>
-        <p>&copy; 2024 Datos Invisibles</p>
-    </footer>
+    <!-- Main content -->
+    <div class="content">
+        <h1>Bienvenido a Datos Invisibles</h1>
+        <p>Esta es la página de inicio. Aquí puedes agregar información de introducción sobre el proyecto.</p>
+    </div>
 
 </body>
 </html>
