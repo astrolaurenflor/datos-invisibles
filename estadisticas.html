@@ -3,109 +3,134 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mapa de Denuncias en Colombia</title>
+    <title>Estadísticas de Denuncias</title>
 
     <!-- Incluir los estilos de Leaflet -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
 
-    <!-- Estilos personalizados -->
     <style>
-        #map {
-            height: 600px;
-            width: 100%;
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            display: flex;
         }
+        /* Sidebar styling */
         .sidebar {
             width: 250px;
-            position: fixed;
             background-color: #6A1B9A;
             color: white;
-            height: 100%;
             padding: 10px;
+            position: fixed;
+            height: 100%;
+        }
+        .sidebar a {
+            color: white;
+            display: block;
+            margin: 10px 0;
+            text-decoration: none;
+        }
+        .sidebar a:hover {
+            background-color: #4A0A7A;
+            padding-left: 5px;
         }
         .content {
             margin-left: 250px;
             padding: 10px;
+            width: 100%;
+        }
+        #map {
+            height: 600px;
+            width: 100%;
         }
     </style>
 </head>
 <body>
 
+    <!-- Sidebar -->
     <div class="sidebar">
         <h2>Datos Invisibles</h2>
-        <a href="index.html" style="color: white;">Inicio</a>
-        <a href="estadistica.html" style="color: white;">Estadistica</a>
+        <a href="index.html">Inicio</a>
+        <a href="denuncias.html">Formulario de Denuncias</a>
+        <a href="estadisticas.html">Estadísticas</a>
     </div>
 
+    <!-- Main Content Area with Map -->
     <div class="content">
-        <h1>Mapa de Denuncias en Colombia</h1>
+        <h1>Estadísticas de Denuncias por Ciudad</h1>
         <div id="map"></div>
     </div>
 
-    <!-- Incluir el script de Leaflet -->
+    <!-- Leaflet JavaScript -->
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
 
-    <!-- Script para cargar datos de Google Sheets y mostrarlos en el mapa -->
     <script>
         // Inicializar el mapa centrado en Colombia
-        const map = L.map('map').setView([4.5709, -74.2973], 6); // Coordenadas de Colombia
+        const map = L.map('map').setView([4.5709, -74.2973], 6);
 
-        // Añadir una capa de mapa de OpenStreetMap
+        // Añadir capa de mapa de OpenStreetMap
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 18,
             attribution: '© OpenStreetMap'
         }).addTo(map);
 
-        // ID de tu Google Sheet
-        const sheetId = 'ID_DE_TU_DOCUMENTO';
-        const sheetUrl = `https://docs.google.com/spreadsheets/d/1Kz6pfz1FM_lWwaW0M3tPe-QF0SnuJJRnxUP8briyWWg/gviz/tq?tqx=out:json`;
+        // ID de la hoja de Google Sheets
+        const sheetId = '2PACX-1vQfgPfi0vZuG4aWNlD-41C-419b5lhNNvMwk8KpE4BxyIQdLXn9838SxRSaRmkYEmf6M3Zh7LE5frpv';
+        const sheetUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json`;
 
-        // Función para cargar datos de Google Sheets
-        async function fetchData() {
-            try {
-                const response = await fetch(sheetUrl);
-                const text = await response.text();
-                const json = JSON.parse(text.substr(47).slice(0, -2)); // Formato de Google Sheets
-                return json.table.rows.map(row => ({
-                    ciudad: row.c[0].v,
-                    conteo: parseInt(row.c[1].v)
-                }));
-            } catch (error) {
-                console.error('Error al obtener los datos de Google Sheets:', error);
-            }
-        }
-
-        // Diccionario de coordenadas para las principales ciudades de Colombia
+        // Coordenadas de ciudades principales de Colombia
         const cityCoordinates = {
             "Bogotá": [4.7110, -74.0721],
             "Medellín": [6.2442, -75.5812],
             "Cali": [3.4516, -76.531985],
             "Barranquilla": [10.9685, -74.7813],
             "Cartagena": [10.3910, -75.4794],
-            // Agrega más ciudades según sea necesario
+            // Agrega más ciudades según se requiera
         };
 
-        // Añadir marcadores al mapa según los datos obtenidos
-        async function addMarkers() {
-            const data = await fetchData();
+        // Función para obtener y procesar datos de Google Sheets
+        async function fetchData() {
+            try {
+                const response = await fetch(sheetUrl);
+                const text = await response.text();
+                const json = JSON.parse(text.substr(47).slice(0, -2));
 
-            data.forEach(({ ciudad, conteo }) => {
-                const coords = cityCoordinates[ciudad];
-                if (coords) {
-                    L.circleMarker(coords, {
-                        color: '#6A1B9A',
-                        radius: Math.sqrt(conteo) * 2, // Ajustar el tamaño según el conteo
-                        fillOpacity: 0.7
-                    })
-                    .bindPopup(`<strong>${ciudad}</strong><br>Denuncias: ${conteo}`)
-                    .addTo(map);
-                } else {
-                    console.warn(`Coordenadas no encontradas para ${ciudad}`);
-                }
-            });
+                const cityCounts = {};
+
+                json.table.rows.forEach(row => {
+                    const city = row.c[5]?.v; // Columna F con índice 5 en JavaScript (empezando desde 0)
+                    if (city) {
+                        cityCounts[city] = (cityCounts[city] || 0) + 1;
+                    }
+                });
+
+                return cityCounts;
+            } catch (error) {
+                console.error("Error al obtener los datos:", error);
+            }
         }
 
-        // Llamar a la función para añadir los marcadores
-        addMarkers();
+        // Función para mostrar marcadores en el mapa
+        async function showMarkers() {
+            const cityCounts = await fetchData();
+
+            for (const [city, count] of Object.entries(cityCounts)) {
+                const coords = cityCoordinates[city];
+                if (coords) {
+                    L.circleMarker(coords, {
+                        color: '#FF5733',
+                        radius: Math.sqrt(count) * 3, // Ajuste de tamaño según conteo
+                        fillOpacity: 0.7
+                    })
+                    .bindPopup(`<strong>${city}</strong><br>Denuncias: ${count}`)
+                    .addTo(map);
+                } else {
+                    console.warn(`Coordenadas no encontradas para ${city}`);
+                }
+            }
+        }
+
+        // Ejecutar la función para mostrar los marcadores
+        showMarkers();
     </script>
 </body>
 </html>
