@@ -3,55 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Estadísticas de Denuncias</title>
-
-    <!-- Incluir los estilos de Leaflet -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
-
+    <title>Denuncias - Datos Invisibles</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             display: flex;
         }
-        /* Sidebar styling */
+
+        /* Reutiliza los estilos del panel izquierdo */
         .sidebar {
             width: 250px;
             background-color: #6A1B9A;
             color: white;
-            padding: 10px;
             position: fixed;
             height: 100%;
+            padding-top: 20px;
         }
+
         .sidebar a {
-            color: white;
             display: block;
-            margin: 10px 0;
+            color: white;
+            padding: 15px;
             text-decoration: none;
         }
+
         .sidebar a:hover {
             background-color: #4A0A7A;
-            padding-left: 5px;
         }
+
         .content {
             margin-left: 250px;
-            padding: 10px;
-            width: 100%;
-        }
-        #map {
-            height: 600px;
+            padding: 20px;
             width: 100%;
         }
     </style>
 </head>
 <body>
 
-    <!-- Sidebar -->
+    <!-- Sidebar (copiar y pegar el mismo código del panel izquierdo en todas las páginas) -->
     <div class="sidebar">
         <h2>Datos Invisibles</h2>
         <a href="index.html">Inicio</a>
-        <a href="denuncias.html">Formulario de Denuncias</a>
+        <a href="denuncias.html">Denuncias</a>
         <a href="estadisticas.html">Estadísticas</a>
+        <a href="contacto.html">Contacto</a>
     </div>
 
     <!-- Main Content Area with Map -->
@@ -74,7 +70,8 @@
         }).addTo(map);
 
         // ID de la hoja de Google Sheets
-        const sheetId = '2PACX-1vQfgPfi0vZuG4aWNlD-41C-419b5lhNNvMwk8KpE4BxyIQdLXn9838SxRSaRmkYEmf6M3Zh7LE5frpv';
+        const sheetId = '2PACX-1vQfgPfi0vZuG4aWNlD-41C-419b5lhNNvMwk8KpE4BxyIQdLXn9838SxRSaRmkYEmf6M3Zh7LE5frpv
+';
         const sheetUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json`;
 
         // Coordenadas de ciudades principales de Colombia
@@ -132,5 +129,9 @@
         // Ejecutar la función para mostrar los marcadores
         showMarkers();
     </script>
+
+
+    
+
 </body>
 </html>
