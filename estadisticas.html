@@ -3,20 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Denuncias - Datos Invisibles</title>
+    <title>Estadísticas de Denuncias - Datos Invisibles</title>
 
     <!-- Incluir los estilos de Leaflet -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
 
-    
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             display: flex;
         }
-
-        /* Reutiliza los estilos del panel izquierdo */
+        /* Sidebar styling */
         .sidebar {
             width: 250px;
             background-color: #6A1B9A;
@@ -24,8 +22,8 @@
             position: fixed;
             height: 100%;
             padding-top: 20px;
-        }
 
+        }
         .sidebar a {
             display: block;
             color: white;
@@ -42,6 +40,10 @@
             padding: 20px;
             width: 100%;
         }
+        #map {
+            height: 500px;
+            width: 100%;
+        }
     </style>
 </head>
 <body>
@@ -55,11 +57,9 @@
         <a href="contacto.html">Contacto</a>
     </div>
 
-    <!--PAGE CONTENT -->
-    
     <!-- Main Content Area with Map -->
     <div class="content">
-        <h1>Mapa de Denuncias</h1>
+        <h1>Mapa de denuncias</h1>
         <div id="map"></div>
     </div>
 
@@ -77,8 +77,7 @@
         }).addTo(map);
 
         // ID de la hoja de Google Sheets
-        const sheetId = '2PACX-1vQfgPfi0vZuG4aWNlD-41C-419b5lhNNvMwk8KpE4BxyIQdLXn9838SxRSaRmkYEmf6M3Zh7LE5frpv
-';
+        const sheetId = '2PACX-1vQfgPfi0vZuG4aWNlD-41C-419b5lhNNvMwk8KpE4BxyIQdLXn9838SxRSaRmkYEmf6M3Zh7LE5frpv';
         const sheetUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json`;
 
         // Coordenadas de ciudades principales de Colombia
@@ -136,9 +135,6 @@
         // Ejecutar la función para mostrar los marcadores
         showMarkers();
     </script>
-
-
-    
-
 </body>
 </html>
+
