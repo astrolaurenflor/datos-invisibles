@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Estadísticas de Denuncias - Datos Invisibles</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
     <style>
         body {
             font-family: 'Poppins', sans-serif;
@@ -13,8 +15,7 @@
             display: flex;
             background-color: #f9f9f9;
         }
-
-        /* Sidebar */
+        
         .sidebar {
             width: 250px;
             background-color: white;
@@ -30,13 +31,13 @@
             background-repeat: no-repeat;
             opacity: 0.7;
         }
-
+        
         .sidebar img {
             width: 80%;
             max-width: 200px;
             margin-bottom: 20px;
         }
-
+        
         .sidebar a {
             display: block;
             color: #6A1B9A;
@@ -44,43 +45,39 @@
             text-decoration: none;
             border-bottom: 1px solid #4A0A7A;
         }
-
+        
         .sidebar a:hover {
             background-color: #A475C7;
         }
-
-        /* Main content area */
+        
         .content {
             margin-left: 250px;
             padding: 20px;
             width: 100%;
             color: black;
         }
-
-        /* Title style */
+        
         h1 {
             text-align: center;
             color: #4A0A7A;
             font-size: 35px;
             margin-bottom: 10px;
         }
-
-        /* Horizontal line */
+        
         hr {
             border: none;
             border-top: 2px dashed #4A0A7A;
             margin: 10px 0;
         }
-
-        /* Justify text */
+        
         .content p {
             text-align: justify;
         }
         
-        /* Canvas for Chart */
-        #cityChart {
-            max-width: 700px;
-            margin: 20px auto;
+        /* Canvas size for the chart */
+        #pieChart {
+            max-width: 600px;
+            margin: auto;
         }
     </style>
 </head>
@@ -96,89 +93,72 @@
         <a href="contacto.html">Contacto</a>
     </div>
 
-    <!-- Main Content Area with Chart -->
+    <!-- Main Content Area with Pie Chart -->
     <div class="content">
-        <h1>Estadísticas de Denuncias por Ciudad</h1>
-        <canvas id="cityChart"></canvas>
+        <h1>Estadísticas de Denuncias</h1>
+        <p>Gráfico circular mostrando el porcentaje de cada tipo de denuncia en la columna "Descripción".</p>
+        <canvas id="pieChart"></canvas>
     </div>
 
-    <!-- Incluir Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
     <script>
-        // ID de la hoja de Google Sheets
-        const sheetId = '2PACX-1vQfgPfi0vZuG4aWNlD-41C-419b5lhNNvMwk8KpE4BxyIQdLXn9838SxRSaRmkYEmf6M3Zh7LE5frpv';
-        const sheetUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json`;
+        // URL de la Google Sheets publicada
+        const sheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQfgPfi0vZuG4aWNlD-41C-419b5lhNNvMwk8KpE4BxyIQdLXn9838SxRSaRmkYEmf6M3Zh7LE5frpv/pub?output=csv';
 
-        // Función para cargar y contar las ciudades desde Google Sheets
-        async function fetchCityData() {
-            try {
-                const response = await fetch(sheetUrl);
-                const text = await response.text();
-                const json = JSON.parse(text.substr(47).slice(0, -2));
-                const data = json.table.rows.map(row => row.c[6]?.v);
+        // Función para cargar y contar tipos de descripción desde Google Sheets
+        async function fetchData() {
+            const response = await fetch(sheetUrl);
+            const data = await response.text();
+            
+            const rows = data.split('\n').slice(1);  // Saltar la primera fila de encabezado
+            const descriptionCounts = {};
 
-                const cityCounts = data.reduce((counts, city) => {
-                    if (city) {
-                        counts[city] = (counts[city] || 0) + 1;
-                    }
-                    return counts;
-                }, {});
+            rows.forEach(row => {
+                const columns = row.split(',');
+                const description = columns[5];  // Columna F (índice 5)
+                
+                if (description) {
+                    descriptionCounts[description] = (descriptionCounts[description] || 0) + 1;
+                }
+            });
 
-                return cityCounts;
-            } catch (error) {
-                console.error("Error al obtener los datos de Google Sheets:", error);
-                return {};
-            }
+            return descriptionCounts;
         }
 
-        // Función para mostrar el gráfico
-        async function displayChart() {
-            const cityCounts = await fetchCityData();
-            const cities = Object.keys(cityCounts);
-            const counts = Object.values(cityCounts);
+        // Función para crear gráfico circular con los datos
+        async function createPieChart() {
+            const descriptionCounts = await fetchData();
+            const labels = Object.keys(descriptionCounts);
+            const data = Object.values(descriptionCounts);
 
-            const ctx = document.getElementById('cityChart').getContext('2d');
+            // Configuración del gráfico
+            const ctx = document.getElementById('pieChart').getContext('2d');
             new Chart(ctx, {
                 type: 'pie',
                 data: {
-                    labels: cities,
+                    labels: labels,
                     datasets: [{
-                        label: 'Número de Denuncias por Ciudad',
-                        data: counts,
+                        label: 'Tipos de Denuncia',
+                        data: data,
                         backgroundColor: [
-                            '#FF6384', '#36A2EB', '#FFCE56', '#66BB6A', '#FFA726',
-                            '#AB47BC', '#8D6E63', '#26C6DA', '#D4E157', '#FF7043'
+                            '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'
                         ],
-                        borderWidth: 1
+                        hoverOffset: 4
                     }]
                 },
                 options: {
                     responsive: true,
                     plugins: {
                         legend: {
-                            position: 'top',
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    let label = context.label || '';
-                                    if (label) {
-                                        label += ': ';
-                                    }
-                                    label += context.raw || 0;
-                                    return label;
-                                }
-                            }
+                            position: 'bottom',
                         }
                     }
                 }
             });
         }
 
-        // Llamar a la función para mostrar el gráfico
-        displayChart();
+        // Crear el gráfico cuando se carga la página
+        createPieChart();
     </script>
-                
+
 </body>
 </html>
