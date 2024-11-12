@@ -4,11 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Denuncias - Datos Invisibles</title>
-   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 
     <style>
-
-        
         body {
             font-family: 'Poppins', sans-serif;
             margin: 0;
@@ -25,7 +23,7 @@
             padding-top: 20px;
             text-align: center;
             border-right: 3px solid #4A0A7A;
-            background-image: url('image/fondobar.png'); /* URL de la imagen de fondo */
+            background-image: url('image/fondobar.png');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
@@ -33,9 +31,9 @@
         }
 
         .sidebar img {
-            width: 80%; /* Ajusta el tamaño de la imagen al 80% del ancho del sidebar */
-            max-width: 200px; /* Tamaño máximo de la imagen */
-            margin-bottom: 20px; /* Espacio debajo de la imagen */
+            width: 80%;
+            max-width: 200px;
+            margin-bottom: 20px;
         }
 
         .sidebar a {
@@ -54,14 +52,19 @@
         .content {
             margin-left: 250px;
             padding: 20px;
-            width: 100%;
+            width: calc(100% - 250px); /* Ajuste de ancho para restar el sidebar */
             color: black;
+            display: flex; /* Activar flexbox */
+            flex-direction: column;
+            align-items: center; /* Centrar horizontalmente */
+            justify-content: center; /* Centrar verticalmente */
+            min-height: 100vh; /* Asegura que el contenido se centre en toda la altura de la pantalla */
         }
 
         /* Title style */
         h1 {
             text-align: center;
-            color: #4A0A7A; /* Dark purple */
+            color: #4A0A7A;
             font-size: 35px;
             margin-bottom: 10px;
         }
@@ -73,9 +76,10 @@
             margin: 10px 0;
         }
 
-                /* Justify text */
+        /* Justify text */
         .content p {
             text-align: justify;
+            max-width: 800px;
         }
         
     </style>
@@ -84,7 +88,7 @@
 
     <!-- Sidebar -->
     <div class="sidebar">
-          <img src="image/logo.png" alt="logo" />
+        <img src="image/logo.png" alt="logo" />
         <a href="index.html">Inicio</a>
         <a href="denuncias.html">Denuncias</a>
         <a href="estadisticas.html">Estadísticas</a>
@@ -94,11 +98,12 @@
     <!-- Contenido de la página Denuncias -->
     <div class="content">
         <h1>Denuncias</h1>
-         <p>Usa el siguiente formulario para denunciar de forma anónima cualquier caso de acoso, abuso o comportamiento inapropiado en instituciones científicas de Colombia.</p>
+        <hr>
+        <p>Usa el siguiente formulario para denunciar de forma anónima cualquier caso de acoso, abuso o comportamiento inapropiado en instituciones científicas de Colombia.</p>
 
-        <!-- Inserta aquí el código del formulario de Google Forms -->
+        <!-- Formulario de Google Forms centrado -->
         <iframe src="https://forms.gle/qeCggFUfxK8nQkU66" width="800" height="800" frameborder="0" marginheight="0" marginwidth="0">Cargando…</iframe>
-   </div>
+    </div>
 
 </body>
 </html>
