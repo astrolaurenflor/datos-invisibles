@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Estadísticas de Denuncias - Datos Invisibles</title>
-   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 
     <!-- Incluir los estilos de Leaflet -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
@@ -15,7 +14,6 @@
             height: 600px;
             width: 100%;
         }
-
         
         body {
             font-family: 'Poppins', sans-serif;
@@ -24,8 +22,7 @@
             background-color: #f9f9f9;
         }
 
-        
-          /* Sidebar */
+        /* Sidebar */
         .sidebar {
             width: 250px;
             background-color: white;
@@ -33,19 +30,19 @@
             position: fixed;
             height: 100%;
             padding-top: 20px;
-            text-align: center; /* Centrar contenido */
+            text-align: center;
             border-right: 3px solid #4A0A7A;
-            background-image: url('image/fondobar.png'); /* URL de la imagen de fondo */
-            background-size: cover; /* Asegura que la imagen cubra todo el fondo */
-            background-position: center; /* Centra la imagen de fondo */
-            background-repeat: no-repeat; /* Evita que la imagen se repita */
-            opacity: 0.7; /* Transparencia de la imagen de fondo */
+            background-image: url('image/fondobar.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0.7;
         }
 
         .sidebar img {
-            width: 80%; /* Ajusta el tamaño de la imagen al 80% del ancho del sidebar */
-            max-width: 200px; /* Tamaño máximo de la imagen */
-            margin-bottom: 20px; /* Espacio debajo de la imagen */
+            width: 80%;
+            max-width: 200px;
+            margin-bottom: 20px;
         }
 
         .sidebar a {
@@ -71,7 +68,7 @@
         /* Title style */
         h1 {
             text-align: center;
-            color: #4A0A7A; /* Dark purple */
+            color: #4A0A7A;
             font-size: 35px;
             margin-bottom: 10px;
         }
@@ -83,7 +80,7 @@
             margin: 10px 0;
         }
 
-                /* Justify text */
+        /* Justify text */
         .content p {
             text-align: justify;
         }
@@ -94,7 +91,7 @@
 
     <!-- Sidebar -->
     <div class="sidebar">
-          <img src="image/logo.png" alt="logo" />
+        <img src="image/logo.png" alt="logo" />
         <a href="index.html">Inicio</a>
         <a href="denuncias.html">Denuncias</a>
         <a href="estadisticas.html">Estadísticas</a>
@@ -120,29 +117,28 @@
             attribution: '© OpenStreetMap'
         }).addTo(map);
 
-        // ID de la hoja de Google Sheets
-        const sheetId = '2PACX-1vQfgPfi0vZuG4aWNlD-41C-419b5lhNNvMwk8KpE4BxyIQdLXn9838SxRSaRmkYEmf6M3Zh7LE5frpv';
-        const sheetUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json`;
-
         // Coordenadas de ciudades principales de Colombia
         const cityCoordinates = {
             "Bogotá": [4.7110, -74.0721],
             "Medellín": [6.2442, -75.5812],
             "Cali": [3.4516, -76.531985],
             "Barranquilla": [10.9685, -74.7813],
-            "Cartagena": [10.3910, -75.4794],
-            // Agrega más ciudades según se requiera
+            "Cartagena": [10.3910, -75.4794]
         };
 
         // Función para cargar y contar las ciudades desde Google Sheets
         async function fetchAndMapData() {
+            const sheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQfgPfi0vZuG4aWNlD-41C-419b5lhNNvMwk8KpE4BxyIQdLXn9838SxRSaRmkYEmf6M3Zh7LE5frpv/pub?output=csv';
             try {
                 const response = await fetch(sheetUrl);
-                const text = await response.text();
-                const json = JSON.parse(text.substr(47).slice(0, -2)); // Eliminar el encabezado de Google Sheets
-                const data = json.table.rows.map(row => row.c[6]?.v); // columna F (ciudades)
+                const csvText = await response.text();
+
+                // Convertir CSV a matriz y extraer la columna de ciudades
+                const rows = csvText.split('\n').map(row => row.split(','));
+                const cityData = rows.slice(1).map(row => row[5]); // Columna F (índice 5)
+
                 // Contar ocurrencias de cada ciudad
-                const cityCounts = data.reduce((counts, city) => {
+                const cityCounts = cityData.reduce((counts, city) => {
                     if (city) {
                         counts[city] = (counts[city] || 0) + 1;
                     }
@@ -158,14 +154,14 @@
 
         // Añadir marcadores al mapa según los datos
         async function addCityMarkers() {
-            const cityCounts = await fetchCityData();
+            const cityCounts = await fetchAndMapData();
 
             Object.keys(cityCounts).forEach(city => {
                 const coords = cityCoordinates[city];
                 if (coords) {
                     L.circleMarker(coords, {
                         color: '#3388ff',
-                        radius: Math.sqrt(cityCounts[city]) * 2, // Ajustar tamaño según conteo
+                        radius: Math.sqrt(cityCounts[city]) * 2,
                         fillOpacity: 0.5
                     })
                     .bindPopup(`<strong>${city}</strong><br>Denuncias: ${cityCounts[city]}`)
@@ -182,4 +178,3 @@
                 
 </body>
 </html>
-    
