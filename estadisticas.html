@@ -12,6 +12,7 @@
             font-family: 'Poppins', sans-serif;
             margin: 0;
             background-color: #f9f9f9;
+            display: flex;
         }
 
         .sidebar {
@@ -52,6 +53,7 @@
             margin-left: 250px;
             padding: 20px;
             color: black;
+            flex-grow: 1;
         }
 
         h1 {
@@ -68,6 +70,38 @@
             padding: 20px;
         }
 
+        /* Media Queries para pantallas más pequeñas */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                position: relative;
+                height: auto;
+                opacity: 1;
+                background-image: none;
+                padding-top: 10px;
+            }
+
+            .content {
+                margin-left: 0;
+                padding: 10px;
+            }
+
+            h1 {
+                font-size: 28px;
+            }
+
+            .chart-container {
+                width: 100%;
+                padding: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 24px;
+            }
+        }
+
     </style>
 
     <!-- Incluir Chart.js -->
@@ -77,7 +111,7 @@
 
     <!-- Sidebar -->
     <div class="sidebar">
-          <img src="image/logo.png" alt="logo" />
+        <img src="image/logo.png" alt="logo" />
         <a href="index.html">Inicio</a>
         <a href="denuncias.html">Denuncias</a>
         <a href="mapa.html">Mapa de denuncias</a>
