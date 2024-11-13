@@ -20,6 +20,7 @@
             margin: 0;
             display: flex;
             background-color: #f9f9f9;
+            flex-wrap: wrap;
         }
 
         /* Sidebar */
@@ -37,6 +38,7 @@
             background-position: center;
             background-repeat: no-repeat;
             opacity: 0.7;
+            z-index: 10;
         }
 
         .sidebar img {
@@ -63,6 +65,7 @@
             padding: 20px;
             width: 100%;
             color: black;
+            box-sizing: border-box;
         }
 
         /* Title style */
@@ -84,7 +87,57 @@
         .content p {
             text-align: justify;
         }
-        
+
+        /* Media queries for responsiveness */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 200px;
+                padding-top: 10px;
+                opacity: 1;
+            }
+
+            .content {
+                margin-left: 0;
+                padding: 10px;
+            }
+
+            h1 {
+                font-size: 28px;
+            }
+
+            #map {
+                height: 400px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                padding: 10px;
+                margin-bottom: 10px;
+            }
+
+            .sidebar a {
+                text-align: center;
+                padding: 10px;
+            }
+
+            .content {
+                margin-left: 0;
+                padding: 5px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            #map {
+                height: 300px;
+            }
+        }
+
     </style>
 </head>
 <body>
@@ -176,6 +229,6 @@
         // Llamar a la función para añadir los marcadores
         addCityMarkers();
     </script>
-                
+
 </body>
 </html>
