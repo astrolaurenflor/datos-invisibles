@@ -12,6 +12,8 @@
             margin: 0;
             display: flex;
             background-color: #f9f9f9;
+            flex-direction: row;
+            flex-wrap: wrap;
         }
 
         /* Sidebar */
@@ -57,7 +59,7 @@
             display: flex; /* Activar flexbox */
             flex-direction: column;
             align-items: center; /* Centrar horizontalmente */
-            justify-content: center; /* Centrar verticalmente */
+            justify-content: flex-start; /* Asegura que se alinee arriba */
             min-height: 100vh; /* Asegura que el contenido se centre en toda la altura de la pantalla */
         }
 
@@ -89,7 +91,53 @@
             height: 80vh; /* Ajuste dinámico de la altura */
             border: none;
         }
-        
+
+        /* Media queries para pantallas pequeñas (móviles) */
+        @media (max-width: 768px) {
+            /* Ajustar el sidebar en pantallas pequeñas */
+            .sidebar {
+                width: 200px;
+                position: relative;
+                height: auto;
+                opacity: 1; /* Asegura que el fondo no esté tan opaco en móviles */
+            }
+
+            /* El contenido toma todo el ancho disponible */
+            .content {
+                margin-left: 0;
+                width: 100%;
+                padding: 10px;
+            }
+
+            /* Ajustar título y texto para que se vean bien en pantallas pequeñas */
+            h1 {
+                font-size: 28px;
+            }
+
+            /* Ajustar el iframe en móviles */
+            iframe {
+                height: 60vh; /* Ajustar la altura en móviles */
+            }
+        }
+
+        /* Media queries para pantallas muy pequeñas (móviles estrechos) */
+        @media (max-width: 480px) {
+            /* Hacer el sidebar más estrecho en pantallas muy pequeñas */
+            .sidebar {
+                width: 160px;
+            }
+
+            /* El título se ajusta un poco más */
+            h1 {
+                font-size: 24px;
+            }
+
+            /* Ajustar más el iframe para móviles muy pequeños */
+            iframe {
+                height: 50vh; /* Ajuste de la altura para pantallas muy pequeñas */
+            }
+        }
+
     </style>
 </head>
 <body>
