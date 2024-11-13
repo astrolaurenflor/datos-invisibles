@@ -12,6 +12,7 @@
             margin: 0;
             display: flex;
             background-color: #f9f9f9;
+            flex-direction: row;
         }
 
         /* Sidebar */
@@ -52,8 +53,8 @@
         .content {
             margin-left: 250px;
             padding: 20px;
-            width: 100%;
             color: black;
+            flex-grow: 1; /* Ocupa el espacio restante */
         }
 
         /* Title style */
@@ -71,11 +72,39 @@
             margin: 10px 0;
         }
 
-         /* Justify text */
+        /* Justify text */
         .content p {
             text-align: justify;
         }
 
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column; /* Cambia la dirección del cuerpo a columna en pantallas pequeñas */
+            }
+
+            .sidebar {
+                width: 100%; /* El sidebar ocupa todo el ancho en pantallas pequeñas */
+                position: relative; /* Cambia a posición relativa en pantallas pequeñas */
+                margin-bottom: 20px; /* Da espacio debajo del sidebar */
+                opacity: 1; /* Asegura que la opacidad sea normal en pantallas pequeñas */
+            }
+
+            .sidebar a {
+                padding: 10px;
+                text-align: center;
+            }
+
+            .content {
+                margin-left: 0;
+                padding: 15px;
+                width: 100%; /* El contenido ocupa todo el ancho */
+            }
+
+            h1 {
+                font-size: 24px; /* Reduce el tamaño del título en pantallas pequeñas */
+            }
+        }
     </style>
 </head>
 <body>
