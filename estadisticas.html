@@ -5,8 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Estadísticas de Denuncias - Datos Invisibles</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-
-    <!-- Incluir Chart.js para los gráficos -->
+    
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
@@ -17,7 +16,6 @@
             background-color: #f9f9f9;
         }
 
-        /* Sidebar */
         .sidebar {
             width: 250px;
             background-color: white;
@@ -52,7 +50,6 @@
             background-color: #A475C7;
         }
 
-        /* Main content area */
         .content {
             margin-left: 250px;
             padding: 20px;
@@ -60,19 +57,11 @@
             color: black;
         }
 
-        /* Title style */
         h1 {
             text-align: center;
             color: #4A0A7A;
             font-size: 35px;
             margin-bottom: 10px;
-        }
-
-        /* Estilo de los gráficos */
-        canvas {
-            max-width: 90%;
-            margin: 0 auto;
-            display: block;
         }
 
         hr {
@@ -81,16 +70,15 @@
             margin: 10px 0;
         }
 
-        /* Justify text */
-        .content p {
-            text-align: justify;
+        /* Chart container */
+        .chart-container {
+            width: 80%;
+            margin: 20px auto;
         }
-        
     </style>
 </head>
 <body>
 
-    <!-- Sidebar -->
     <div class="sidebar">
         <img src="image/logo.png" alt="logo" />
         <a href="index.html">Inicio</a>
@@ -100,58 +88,50 @@
         <a href="contacto.html">Contacto</a>
     </div>
 
-    <!-- Main Content Area with Charts -->
     <div class="content">
-        <h1>Estadísticas de Denuncias</h1>
+        <h1>Estadísticas</h1>
 
-        <!-- Gráfico Circular -->
-        <h3>Distribución de las Descripciones</h3>
-        <canvas id="pieChart"></canvas>
-        
-        <hr>
+        <div class="chart-container">
+            <canvas id="pieChart"></canvas>
+        </div>
 
-        <!-- Histograma -->
-        <h3>Frecuencia de Descripciones</h3>
-        <canvas id="barChart"></canvas>
+        <div class="chart-container">
+            <canvas id="histogram"></canvas>
+        </div>
     </div>
 
     <script>
-        // Función para obtener y procesar los datos desde Google Sheets
-        async function fetchData() {
-            const sheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQfgPfi0vZuG4aWNlD-41C-419b5lhNNvMwk8KpE4BxyIQdLXn9838SxRSaRmkYEmf6M3Zh7LE5frpv/pubhtml';
-            const response = await fetch(sheetUrl);
-            const text = await response.text();
-            const json = JSON.parse(text.substr(47).slice(0, -2)); // Eliminar encabezado de Google Sheets
-            const data = json.table.rows.map(row => row.c[4]?.v); // Extraer los valores de la columna E (Descripción)
+        const sheetId = '2PACX-1vQfgPfi0vZuG4aWNlD-41C-419b5lhNNvMwk8KpE4BxyIQdLXn9838SxRSaRmkYEmf6M3Zh7LE5frpv';
+        const sheetUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json`;
 
-            return data;
+        async function fetchData() {
+            try {
+                const response = await fetch(sheetUrl);
+                const text = await response.text();
+                const json = JSON.parse(text.substr(47).slice(0, -2)); // Limpiar encabezado
+                const data = json.table.rows.map(row => row.c[4]?.v); // Columna E (Descripción)
+
+                return data;
+            } catch (error) {
+                console.error("Error al obtener los datos de Google Sheets:", error);
+                return [];
+            }
         }
 
-        // Función para crear los gráficos
-        async function createCharts() {
+        // Función para crear gráfico circular
+        async function createPieChart() {
             const data = await fetchData();
+            const labels = [...new Set(data)]; // Obtener clases únicas
+            const counts = labels.map(label => data.filter(item => item === label).length);
 
-            // Procesamiento para el gráfico circular
-            const descriptionCounts = data.reduce((counts, description) => {
-                if (description) {
-                    counts[description] = (counts[description] || 0) + 1;
-                }
-                return counts;
-            }, {});
-
-            const pieLabels = Object.keys(descriptionCounts);
-            const pieData = Object.values(descriptionCounts);
-
-            // Gráfico Circular
-            const ctxPie = document.getElementById('pieChart').getContext('2d');
-            new Chart(ctxPie, {
+            const ctx = document.getElementById('pieChart').getContext('2d');
+            new Chart(ctx, {
                 type: 'pie',
                 data: {
-                    labels: pieLabels,
+                    labels: labels,
                     datasets: [{
-                        label: 'Descripción de las Denuncias',
-                        data: pieData,
-                        backgroundColor: ['#FF9999', '#66B2FF', '#99FF99', '#FFCC99', '#FF6666'], // Colores
+                        data: counts,
+                        backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4CAF50', '#9C27B0'],
                     }]
                 },
                 options: {
@@ -163,7 +143,7 @@
                         tooltip: {
                             callbacks: {
                                 label: function(tooltipItem) {
-                                    const percentage = ((tooltipItem.raw / pieData.reduce((a, b) => a + b, 0)) * 100).toFixed(2);
+                                    const percentage = ((tooltipItem.raw / counts.reduce((a, b) => a + b)) * 100).toFixed(2);
                                     return `${tooltipItem.label}: ${percentage}%`;
                                 }
                             }
@@ -171,39 +151,41 @@
                     }
                 }
             });
+        }
 
-            // Procesamiento para el histograma
-            const barLabels = pieLabels;  // Las mismas etiquetas para el histograma
-            const barData = pieData;
+        // Función para crear histograma
+        async function createHistogram() {
+            const data = await fetchData();
+            const labels = [...new Set(data)]; // Obtener clases únicas
+            const counts = labels.map(label => data.filter(item => item === label).length);
 
-            // Histograma
-            const ctxBar = document.getElementById('barChart').getContext('2d');
-            new Chart(ctxBar, {
+            const ctx = document.getElementById('histogram').getContext('2d');
+            new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: barLabels,
+                    labels: labels,
                     datasets: [{
-                        label: 'Frecuencia de Descripciones',
-                        data: barData,
-                        backgroundColor: '#6A1B9A', // Color de las barras
+                        label: 'Número de Denuncias',
+                        data: counts,
+                        backgroundColor: '#4CAF50',
+                        borderColor: '#388E3C',
+                        borderWidth: 1
                     }]
                 },
                 options: {
                     responsive: true,
                     scales: {
                         y: {
-                            beginAtZero: true,
-                            ticks: {
-                                stepSize: 1,
-                            }
+                            beginAtZero: true
                         }
                     }
                 }
             });
         }
 
-        // Llamar a la función para crear los gráficos
-        createCharts();
+        // Llamadas a funciones para crear los gráficos
+        createPieChart();
+        createHistogram();
     </script>
 
 </body>
